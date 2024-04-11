@@ -5,9 +5,11 @@ from .models import News
 from rest_framework import response
 from .serializers import NewsSerializer
 from rest_framework.decorators import api_view
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
+from random import randint
 # Create your views here.
 
 def homepage(request):
@@ -15,23 +17,6 @@ def homepage(request):
     context = {'news':news}
     return render(request, 'api/home.html', context)
 
-@api_view(['GET'])
-def listnews(request,pk):
-    news = News.objects.get(id=pk)
-    serialized = NewsSerializer(news)
-    return Response(serialized)
-
-@api_view(['GET'])
-def randomnews(request):
-    return Response({'name':'hello'})
-
-@api_view(['GET'])
-def search(request):
-    return Response({'name':'hello'})
-
-@api_view(['GET'])
-def modenews(request):
-    return Response({'name':'hello'})
 
 def LoginPage(request):
     page = 'login'
@@ -51,6 +36,9 @@ def LoginPage(request):
             return redirect('home')
         else:
             messages.error(request, 'Username OR password does not match')
+        
+    context = {'page': page}
+    return render(request, 'api/login_register.html', context)
 
 def register(request):
     form = UserCreationForm()
@@ -66,8 +54,32 @@ def register(request):
         login(request, user)
         return redirect('home')
         
-    return render(request, 'base/login_register.html', context)
+    return render(request, 'api/login_register.html', context)
 
 def logoutUser(request):
     logout(request)
+    return redirect('home')
+
+
+@login_required(login_url = 'login')
+@api_view(['GET'])
+def listnews(request,pk):
+    news = News.objects.get(id=pk)
+    serialized = NewsSerializer(news)
+    return Response(serialized)
+
+@login_required(login_url = 'login')
+@api_view(['GET'])
+def randomnews(request):
+    return Response({'name':'hello'})
+
+@login_required(login_url = 'login')
+@api_view(['GET'])
+def search(request):
+    return Response({'name':'hello'})
+
+@login_required(login_url = 'login')
+@api_view(['GET'])
+def modenews(request):
+    return Response({'name':'hello'})
     return redirect('home')

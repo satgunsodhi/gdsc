@@ -5,10 +5,10 @@
     </a>
 </div>
 
-<div style="text-align: right;">
-    {% if request.user.is_authenicated %}
-    Logged in as: {{request.user}}
-    <a href="{% url 'logout' %}">logout</a>
+<div>
+    {% if request.user.is_authenticated %}
+    User: {{user.username}}
+    <a href="{%url 'logout' %}">logout</a>
     {% else %}
     <a href="{% url 'login' %}">Login</a>
     {% endif %}

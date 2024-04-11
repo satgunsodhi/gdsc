@@ -1,7 +1,7 @@
 {% extends 'main.html' %}
 
 {% block content %}
-
+{% if request.user.is_authenticated %}
 {%for new in news %}
 <div>News no. {{new.id}}</div>
 <div>{{new.title}}</div>
@@ -9,4 +9,5 @@
 <div>{{new.content}}</div>
 <hr>
 {% endfor %}
+{% endif %}
 {% endblock content %}
