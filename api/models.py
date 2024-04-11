@@ -9,9 +9,8 @@ class News(models.Model):
     updated = models.DateTimeField(auto_now=True)
     date = models.DateTimeField()
     views = models.BigIntegerField()
-    
     def __str__(self):
-        return self.name
+        return self.title
     
 class apiKey(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
