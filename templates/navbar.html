@@ -1,7 +1,17 @@
-<a href="/">
-    LOGO
-</a>
 
-<a href="{% url 'login' %}">Login</a>
+<div>
+    <a href="/">
+        <h1>Home</h1>
+    </a>
+</div>
+
+<div style="text-align: right;">
+    {% if request.user.is_authenicated %}
+    Logged in as: {{request.user}}
+    <a href="{% url 'logout' %}">logout</a>
+    {% else %}
+    <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+</div>
 
 <hr>

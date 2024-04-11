@@ -7,6 +7,7 @@ urlpatterns = [
     path('api/news/?data=<str:pk>/?apikey=<str:apkey>', views.search),
     path('api/news/?mode=<str:pk>/?apikey=<str:apkey>', views.modenews),
     path('', views.homepage, name = 'home'),
-    path('login', views.login, name = 'login'),
-    path('register', views.register, name = 'register')
+    path('login', views.LoginPage, name = 'login'),
+    path('register', views.register, name = 'register'),
+    path('logout', views.logoutUser, name='logout'),
 ]
