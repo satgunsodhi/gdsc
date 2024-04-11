@@ -5,6 +5,7 @@ from .models import News, apiKey, Comment, Log
 from .serializers import NewsSerializer, CommentSerializer
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from random import choice
@@ -74,7 +75,7 @@ def listnews(request,pk,apkey):
             news.views += 1
             news.save()
             serialized = NewsSerializer(news)
-            Log(log_info = 'News number '+str(pk)+'was served to apikey '+apkey).save()
+            Log(log_info = 'News number '+str(pk)+' was served to apikey '+apkey).save()
             return Response(serialized.data)
     Log(log_info = 'invalid api call was made with wrong apikey key: '+apkey).save()
     return Response({'error':'apikey dosent match'})
@@ -192,9 +193,9 @@ def showcomments(request,pk,apkey):
         ap = str(ap)
         apkey = str(apkey)
         if (apkey == ap):    
-            comment = Comment.objects.filter()
+            comment = Comment.objects.get(id=pk)
             serealized = CommentSerializer(comment)
-            Log(log_info = 'Comment no. '+str(pk)+'was accessed by apikey '+str(apkey)).save()
+            Log(log_info = 'Comment no. '+str(pk)+' was accessed by apikey '+str(apkey)).save()
             return Response(serealized.data)
     Log(log_info = 'invalid api call was made with wrong apikey key: '+apkey).save()
     return Response({'error':'apikey dosent match'})
