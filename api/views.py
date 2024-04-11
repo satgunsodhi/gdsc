@@ -1,16 +1,13 @@
 from django.shortcuts import render, redirect
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from .models import News
-from rest_framework import response
-from .serializers import NewsSerializer
+from .models import News, apiKey, Comment, Log
+from .serializers import NewsSerializer, CommentSerializer
 from rest_framework.decorators import api_view
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
-from random import randint
-from .models import apiKey
+from random import choice
 # Create your views here.
 
 def homepage(request):
@@ -74,8 +71,18 @@ def listnews(request,pk,apkey):
     return Response({'error':'apikey dosent match'})
 
 @api_view(['GET'])
-def randomnews(request):
-    return Response({'name':'hello'})
+def randomnews(request,apkey):
+    apikeys= apiKey.objects.all()
+    for ap in apikeys:
+        ap = str(ap)
+        apkey = str(apkey)
+        if (apkey == ap):
+            rint = choice(list(News.objects.values_list('id')))
+            news = News.objects.get(id=rint[0])
+            serialized = NewsSerializer(news)
+            Log(log_info = 'random news was served to api key'+apkey).save()
+            return Response(serialized.data)
+    return Response({'error':'apikey dosent match'})
 
 @api_view(['GET'])
 def search(request,data,apkey):
@@ -109,20 +116,17 @@ def modenews(request,mode,apkey):
         apkey = str(apkey)
         if (apkey == ap):
             if(mode == '1'):
-                return getlatest()
+                return getlatest(apkey)
             if(mode == '2'):
-                return getpopular()
+                return getpopular(apkey)
             if(mode == '3'):
-                return getbest()
+                return getbest(apkey)
 
     return Response({'error':'apikey dosent match'})
 
-@api_view(['GET'])
-def listerror(request):
-    return Response({'name':'hello'})
 
 
-def getlatest():
+def getlatest(apkey):
     news = News.objects.all()
     nid = list(News.objects.values_list('id',flat=True))[0]
     for oid in list(News.objects.values_list('id',flat=True)):
@@ -130,18 +134,20 @@ def getlatest():
             nid = oid
     news = News.objects.get(id=nid)
     serialized = NewsSerializer(news)
+    Log(log_info = 'latest news was served to api key '+apkey).save()
     return Response(serialized.data)
 
-def getpopular():
+def getpopular(apkey):
     nid = list(News.objects.values_list('views',flat=True))[0]
     for oid in list(News.objects.values_list('id',flat=True)):
         if News.objects.get(id=oid).views > News.objects.get(id=nid).views:
             nid = oid
     news = News.objects.get(id=nid)
     serialized = NewsSerializer(news)
+    Log(log_info = 'popular news was served to api key '+apkey).save()
     return Response(serialized.data)
 
-def getbest():
+def getbest(apkey):
     nid = 0
     best = 0
     for oid in list(News.objects.values_list('id',flat=True)):
@@ -154,7 +160,11 @@ def getbest():
             best = criteria
     news = News.objects.get(id=nid)
     serialized = NewsSerializer(news)
+    Log(log_info = 'best news was served to api key '+apkey).save()
     return Response(serialized.data)
 
-def showcomments():
-    return True
+@api_view(['GET'])
+def showcomments(request,pk):
+    comment = Comment.objects.filter()
+    serealized = CommentSerializer(comment)
+    return Response(serealized.data)
