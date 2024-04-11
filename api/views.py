@@ -7,7 +7,9 @@ from rest_framework.decorators import api_view
 # Create your views here.
 
 def homepage(request):
-    return render(request, 'api/home.html')
+    news = News.objects.all()
+    context = {'news':news}
+    return render(request, 'api/home.html', context)
 
 @api_view(['GET'])
 def listnews(request,pk):
