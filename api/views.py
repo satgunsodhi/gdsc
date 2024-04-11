@@ -68,7 +68,6 @@ def listnews(request,pk,apkey):
         ap = str(ap)
         apkey = str(apkey)
         if (apkey == ap):
-            print('hi')
             news = News.objects.get(id=pk)
             serialized = NewsSerializer(news)
             return Response(serialized.data)
@@ -79,8 +78,28 @@ def randomnews(request):
     return Response({'name':'hello'})
 
 @api_view(['GET'])
-def search(request):
-    return Response({'name':'hello'})
+def search(request,data,apkey):
+    data = str(data)
+    print(data)
+    apikeys= apiKey.objects.all()
+    nid = []
+    for ap in apikeys:
+        ap = str(ap)
+        apkey = str(apkey)
+        if (apkey == ap):
+            for oid in list(News.objects.values_list('id',flat=True)):
+                if data in News.objects.get(id=oid).content:
+                    nid.append(oid)
+            print(nid)
+            if nid:
+                serializer = NewsSerializer(News.objects.get(id=nid[0]))
+                for i in nid[1:]:
+                    news = News.objects.get(id=i)
+                    serialized += NewsSerializer(news)
+                    return Response(serialized.data)
+            else:
+                return Response({'error':'No data matched'})
+    return Response({'error':'apikey dosent match'})
 
 @api_view(['GET'])
 def modenews(request,mode,apkey):
@@ -128,7 +147,6 @@ def getbest():
     for oid in list(News.objects.values_list('id',flat=True)):
         print()
         criteria = 0.3*int(News.objects.get(id=oid).updated.hour+News.objects.get(id=oid).updated.minute/60+News.objects.get(id=oid).updated.second/3600) + 0.7*int(News.objects.get(id=oid).views)
-        print(criteria)
         if oid == nid:
             continue
         if criteria > best:
@@ -137,3 +155,6 @@ def getbest():
     news = News.objects.get(id=nid)
     serialized = NewsSerializer(news)
     return Response(serialized.data)
+
+def showcomments():
+    return True
