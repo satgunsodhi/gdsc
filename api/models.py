@@ -15,5 +15,5 @@ class News(models.Model):
 class apiKey(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     api_key = models.CharField(max_length=256)
-    def __str__(self):
-        self.name
+    def __str__(self) -> str:
+        return self.api_key
