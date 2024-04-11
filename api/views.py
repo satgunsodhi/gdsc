@@ -6,6 +6,9 @@ from .serializers import NewsSerializer
 from rest_framework.decorators import api_view
 # Create your views here.
 
+def homepage(request):
+    return render(request, 'api/home.html')
+
 @api_view(['GET'])
 def listnews(request,pk):
     news = News.objects.get(id=pk)
