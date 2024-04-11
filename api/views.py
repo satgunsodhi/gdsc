@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from random import randint
+from .models import apiKey
 # Create your views here.
 
 def homepage(request):
@@ -60,26 +61,79 @@ def logoutUser(request):
     logout(request)
     return redirect('home')
 
-
-@login_required(login_url = 'login')
 @api_view(['GET'])
-def listnews(request,pk):
-    news = News.objects.get(id=pk)
-    serialized = NewsSerializer(news)
-    return Response(serialized)
+def listnews(request,pk,apkey):
+    apikeys= apiKey.objects.all()
+    for ap in apikeys:
+        ap = str(ap)
+        apkey = str(apkey)
+        if (apkey == ap):
+            print('hi')
+            news = News.objects.get(id=pk)
+            serialized = NewsSerializer(news)
+            return Response(serialized.data)
+    return Response({'error':'apikey dosent match'})
 
-@login_required(login_url = 'login')
 @api_view(['GET'])
 def randomnews(request):
     return Response({'name':'hello'})
 
-@login_required(login_url = 'login')
 @api_view(['GET'])
 def search(request):
     return Response({'name':'hello'})
 
-@login_required(login_url = 'login')
 @api_view(['GET'])
-def modenews(request):
+def modenews(request,mode,apkey):
+    apikeys= apiKey.objects.all()
+    for ap in apikeys:
+        ap = str(ap)
+        apkey = str(apkey)
+        if (apkey == ap):
+            if(mode == '1'):
+                return getlatest()
+            if(mode == '2'):
+                return getpopular()
+            if(mode == '3'):
+                return getbest()
+
+    return Response({'error':'apikey dosent match'})
+
+@api_view(['GET'])
+def listerror(request):
     return Response({'name':'hello'})
-    return redirect('home')
+
+
+def getlatest():
+    news = News.objects.all()
+    nid = list(News.objects.values_list('id',flat=True))[0]
+    for oid in list(News.objects.values_list('id',flat=True)):
+        if News.objects.get(id=oid).updated > News.objects.get(id=nid).updated:
+            nid = oid
+    news = News.objects.get(id=nid)
+    serialized = NewsSerializer(news)
+    return Response(serialized.data)
+
+def getpopular():
+    nid = list(News.objects.values_list('views',flat=True))[0]
+    for oid in list(News.objects.values_list('id',flat=True)):
+        if News.objects.get(id=oid).views > News.objects.get(id=nid).views:
+            nid = oid
+    news = News.objects.get(id=nid)
+    serialized = NewsSerializer(news)
+    return Response(serialized.data)
+
+def getbest():
+    nid = 0
+    best = 0
+    for oid in list(News.objects.values_list('id',flat=True)):
+        print()
+        criteria = 0.3*int(News.objects.get(id=oid).updated.hour+News.objects.get(id=oid).updated.minute/60+News.objects.get(id=oid).updated.second/3600) + 0.7*int(News.objects.get(id=oid).views)
+        print(criteria)
+        if oid == nid:
+            continue
+        if criteria > best:
+            nid = oid
+            best = criteria
+    news = News.objects.get(id=nid)
+    serialized = NewsSerializer(news)
+    return Response(serialized.data)
