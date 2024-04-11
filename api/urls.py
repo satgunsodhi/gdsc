@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path('api/apikey=<str:apkey>', views.randomnews),
     path('list/<int:pk>/apikey=<str:apkey>', views.listnews),
-    path('comment/<int:pk>', views.showcomments),
+    path('comment/<int:pk>/apikey=<str:apkey>', views.showcomments),
     path('api/news/data=<str:data>/apikey=<str:apkey>', views.search),
     path('api/news/mode=<str:mode>/apikey=<str:apkey>', views.modenews),
     path('', views.homepage, name = 'home'),
